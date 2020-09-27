@@ -31,18 +31,24 @@ function Get-TrelloBoard {
 					$invApiParams.PathParameters = 'members/me/boards'
 					foreach ($bName in $Name) {
 						$boards = Invoke-PowerTrelloApiCall @invApiParams
-						$boards | where { $_.name -eq $bName }
+						$boards = $boards | where { $_.name -like "$bName" } 
+						$Boards | Add-Member -TypeName "PowerTrello.Board"
+						$Boards
 					}
 				}
 				'ById' {
 					foreach ($bId in $Id) {
 						$invApiParams.PathParameters = "boards/$bId"
-						Invoke-PowerTrelloApiCall @invApiParams
+						$Boards = Invoke-PowerTrelloApiCall @invApiParams
+						$Boards | Add-Member -TypeName "PowerTrello.Board"
+						$Boards
 					}
 				}
 				default {
 					$invApiParams.PathParameters = 'members/me/boards'
-					Invoke-PowerTrelloApiCall @invApiParams
+					$Boards = Invoke-PowerTrelloApiCall @invApiParams
+					$Boards | Add-Member -TypeName "PowerTrello.Board"
+					$Boards
 				}
 			}
 		} catch {
