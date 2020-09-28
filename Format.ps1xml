@@ -33,5 +33,47 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <View>
+      <Name>PowerTrello.Card</Name>
+      <ViewSelectedBy>
+        <TypeName>PowerTrello.Card</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Width>42</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>30</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Width>25</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Complete</Label>
+            <Width>8</Width>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ShortURL</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>due</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>dueComplete</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+            <Wrap/>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
   </ViewDefinitions>
 </Configuration>
