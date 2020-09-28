@@ -34,6 +34,7 @@ function Get-TrelloBoard {
 						$boards = $boards | where { $_.name -like "$bName" } 
 						$Boards | Add-Member -TypeName "PowerTrello.Board"
 						$boards | Add-Member AliasProperty -Name BoardId -Value Id
+						$boards | Add-Member AliasProperty -Name BoardName -Value name
 						$Boards
 					}
 				}
@@ -43,6 +44,7 @@ function Get-TrelloBoard {
 						$Boards = Invoke-PowerTrelloApiCall @invApiParams
 						$Boards | Add-Member -TypeName "PowerTrello.Board"
 						$boards | Add-Member AliasProperty -Name BoardId -Value Id
+						$boards | Add-Member AliasProperty -Name BoardName -Value name
 						$Boards
 					}
 				}
@@ -51,6 +53,7 @@ function Get-TrelloBoard {
 					$Boards = Invoke-PowerTrelloApiCall @invApiParams
 					$Boards | Add-Member -TypeName "PowerTrello.Board"
 					$boards | Add-Member AliasProperty -Name BoardId -Value Id
+					$boards | Add-Member AliasProperty -Name BoardName -Value name
 					$Boards
 				}
 			}
