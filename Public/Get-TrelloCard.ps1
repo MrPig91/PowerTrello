@@ -2,9 +2,16 @@ function Get-TrelloCard {
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     param
     (
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
-        [object]$Board,
+        [ArgumentCompleter({
+            param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
+            Get-TrelloBoard -Name "*$wordToComplete*" | foreach {
+                $ToolTip = "Name: $($_.Name)`nShortURL: $($_.ShortURL)`nLastView: $($_.dateLastView)"
+                [System.Management.Automation.CompletionResult]::new($_.BoardId,$_.Name,"ParameterValue",$ToolTip)
+            }
+        })]
+        [string]$BoardId,
 
         [Parameter(ParameterSetName = 'List')]
         [ValidateNotNullOrEmpty()]
@@ -44,7 +51,7 @@ function Get-TrelloCard {
             if ($IncludeArchived.IsPresent) {
                 $filter = 'all'
             }
-            $cards = Invoke-RestMethod -Uri "$script:baseUrl/boards/$($Board.Id)/cards?customFieldItems=true&filter=$filter&$($trelloConfig.String)"
+            $cards = Invoke-RestMethod -Uri "$script:baseUrl/boards/$BoardId/cards?customFieldItems=true&filter=$filter&$($trelloConfig.String)"
             $cards | Add-Member -TypeName "PowerTrello.Card"
             if ($PSBoundParameters.ContainsKey('Label')) {
                 $cards = $cards | where { if (($_.labels) -and $_.labels.Name -contains $Label) { $true } }
@@ -59,7 +66,7 @@ function Get-TrelloCard {
             }
             $Boards = Get-TrelloBoard
 
-            $boardCustomFields = Get-TrelloCustomField -BoardId $Board.id
+            $boardCustomFields = Get-TrelloCustomField -BoardId $BoardId
             foreach ($card in $cards) {
                 if ($IncludeAllActivity.IsPresent) {
                     $card | Add-Member -NotePropertyName 'Activity' -NotePropertyValue (Get-TrelloCardAction -Card $_)
@@ -67,7 +74,7 @@ function Get-TrelloCard {
                 if ('customFieldItems' -in $card.PSObject.Properties.Name) {
                     $cFields = @()
                     $card.customFieldItems | foreach {
-                        $cFields += ConvertToFriendlyCustomField -BoardId $Board.Id -CustomFieldItem $_ -BoardCustomFields $boardCustomFields
+                        $cFields += ConvertToFriendlyCustomField -BoardId $BoardId -CustomFieldItem $_ -BoardCustomFields $boardCustomFields
                     }
                     $card | Add-Member -NotePropertyName 'CustomFields' -NotePropertyValue $cFields
                     $card | Add-Member -MemberType NoteProperty -Name BoardName -Value ($Boards | where Id -eq $card.idBoard).Name
