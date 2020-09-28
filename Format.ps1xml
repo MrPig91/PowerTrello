@@ -47,11 +47,14 @@
             <Width>30</Width>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Due Date</Label>
+            <Width>16</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Width>25</Width>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Complete</Label>
-            <Width>8</Width>
+            <Width>25</Width>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
@@ -64,10 +67,35 @@
                 <PropertyName>ShortURL</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>due</PropertyName>
+                <ScriptBlock>
+                if ($_.due){
+                  $date = [DateTime]::now
+                  $Esc = [char]27
+                    if ($_.dueComplete){
+                      $color = "[92m"
+                    }
+                    elseif ($date -gt $_.due){
+                      $color = "[91m"
+                    }
+                    elseif (($date.addHours(12) -gt $_.due)){
+                      $color = "[38;2;255;165;0m"
+                    }
+                    elseif (($date.addHours(24) -gt $_.due)){
+                      $color = "[93m"
+                    }
+                    else{
+                      $color = "[92m"
+                    }
+                  $text = "$(Get-Date $_.due -Format "MM-dd hh:mm tt")"
+                  "$($Esc)$($color)$($Text)$($Esc)[39m"
+                }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>dueComplete</PropertyName>
+                <PropertyName>BoardName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ListName</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
             <Wrap/>

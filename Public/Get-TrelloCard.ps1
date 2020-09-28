@@ -71,6 +71,12 @@ function Get-TrelloCard {
                     }
                     $card | Add-Member -NotePropertyName 'CustomFields' -NotePropertyValue $cFields
                     $card | Add-Member -MemberType NoteProperty -Name BoardName -Value ($Boards | where Id -eq $card.idBoard).Name
+                    $card | Add-Member -MemberType NoteProperty -Name ListName -Value (Get-TrelloList -ListId $card.idList).Name
+                    if ($card.due){
+                        $tDate = $card.due
+                        $Date = Get-Date -Year $tdate.substring(0,4) -Month $tDate.Substring(5,2) -Day $tdate.SubString(8,2) -Hour $tDate.substring(11,2) -Minute $tDate.substring(14,2)
+                        [datetime]$card.due = $Date 
+                    }
                     $card
                 }
             }
