@@ -8,10 +8,10 @@ function Get-TrelloCard {
             param ($commandName,$parameterName,$wordToComplete,$commandAst,$fakeBoundParameters)
             Get-TrelloBoard -Name "*$wordToComplete*" | foreach {
                 $ToolTip = "Name: $($_.Name)`nShortURL: $($_.ShortURL)`nLastView: $($_.dateLastView)"
-                [System.Management.Automation.CompletionResult]::new($_.BoardId,$_.Name,"ParameterValue",$ToolTip)
+                [System.Management.Automation.CompletionResult]::new("`"$($_.BoardName)`"",$_.BoardName,"ParameterValue",$ToolTip)
             }
         })]
-        [string]$BoardId,
+        [string]$BoardName,
 
         [Parameter(ParameterSetName = 'List')]
         [ValidateNotNullOrEmpty()]
@@ -51,6 +51,9 @@ function Get-TrelloCard {
             if ($IncludeArchived.IsPresent) {
                 $filter = 'all'
             }
+            if ($PSBoundParameters.ContainsKey("BoardName")){
+                $BoardId = (Get-TrelloBoard -Name $BoardName).BoardId
+            }
             $cards = Invoke-RestMethod -Uri "$script:baseUrl/boards/$BoardId/cards?customFieldItems=true&filter=$filter&$($trelloConfig.String)"
             $cards | Add-Member -TypeName "PowerTrello.Card"
             if ($PSBoundParameters.ContainsKey('Label')) {
@@ -79,6 +82,7 @@ function Get-TrelloCard {
                     $card | Add-Member -NotePropertyName 'CustomFields' -NotePropertyValue $cFields
                     $card | Add-Member -MemberType NoteProperty -Name BoardName -Value ($Boards | where Id -eq $card.idBoard).Name
                     $card | Add-Member -MemberType NoteProperty -Name ListName -Value (Get-TrelloList -ListId $card.idList).Name
+                    $card | Add-Member -MemberType ScriptMethod -Value {start $this.ShortUrl} -Name GoToCard
                     if ($card.due){
                         $tDate = $card.due
                         $Date = Get-Date -Year $tdate.substring(0,4) -Month $tDate.Substring(5,2) -Day $tdate.SubString(8,2) -Hour $tDate.substring(11,2) -Minute $tDate.substring(14,2)
