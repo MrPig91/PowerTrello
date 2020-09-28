@@ -45,6 +45,7 @@ function Get-TrelloCard {
                 $filter = 'all'
             }
             $cards = Invoke-RestMethod -Uri "$script:baseUrl/boards/$($Board.Id)/cards?customFieldItems=true&filter=$filter&$($trelloConfig.String)"
+            $cards | Add-Member -TypeName "PowerTrello.Card"
             if ($PSBoundParameters.ContainsKey('Label')) {
                 $cards = $cards | where { if (($_.labels) -and $_.labels.Name -contains $Label) { $true } }
             } elseif ($PSBoundParameters.ContainsKey('Due')) {
@@ -56,6 +57,7 @@ function Get-TrelloCard {
             } elseif ($PSBoundParameters.ContainsKey('List')) {
                 $cards = $cards | where { $_.idList -eq $List.id }
             }
+            $Boards = Get-TrelloBoard
 
             $boardCustomFields = Get-TrelloCustomField -BoardId $Board.id
             foreach ($card in $cards) {
@@ -67,7 +69,9 @@ function Get-TrelloCard {
                     $card.customFieldItems | foreach {
                         $cFields += ConvertToFriendlyCustomField -BoardId $Board.Id -CustomFieldItem $_ -BoardCustomFields $boardCustomFields
                     }
-                    $card | Add-Member -NotePropertyName 'CustomFields' -NotePropertyValue $cFields -PassThru
+                    $card | Add-Member -NotePropertyName 'CustomFields' -NotePropertyValue $cFields
+                    $card | Add-Member -MemberType NoteProperty -Name BoardName -Value ($Boards | where Id -eq $card.idBoard).Name
+                    $card
                 }
             }
         } catch {
