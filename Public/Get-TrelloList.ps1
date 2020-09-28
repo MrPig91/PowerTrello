@@ -1,11 +1,14 @@
 function Get-TrelloList {
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName = "ByBoard")]
 	param
 	(
-		[Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName,ParameterSetName = "ByBoard")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('id')]
-		[string]$BoardId
+		[string]$BoardId,
+
+		[Parameter(Mandatory,ParameterSetName = "ByID")]
+		[string]$ListId
 		
 	)
 	begin {
@@ -13,8 +16,13 @@ function Get-TrelloList {
 	}
 	process {
 		try {
-			foreach ($list in (Invoke-RestMethod -Uri "$script:baseUrl/boards/$BoardId/lists?$($trelloConfig.String)")) {
-				$list
+			if ($PSBoundParameters.ContainsKey("ListId")){
+				Invoke-RestMethod -Uri "$script:baseUrl/lists/$($ListId)?$($trelloConfig.String)"
+			}
+			else{
+				foreach ($list in (Invoke-RestMethod -Uri "$script:baseUrl/boards/$BoardId/lists?$($trelloConfig.String)")) {
+					$list
+				}
 			}
 		} catch {
 			Write-Error $_.Exception.Message
